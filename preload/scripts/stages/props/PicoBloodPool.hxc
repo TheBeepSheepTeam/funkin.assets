@@ -1,5 +1,6 @@
 import funkin.graphics.adobeanimate.FlxAtlasSprite;
 import flixel.math.FlxPoint;
+import flixel.math.FlxMatrix;
 import flixel.FlxSprite;
 import funkin.graphics.FunkinSprite;
 import funkin.play.PlayState;
@@ -9,6 +10,11 @@ import funkin.audio.FunkinSound;
 
 class PicoBloodPool extends FlxAtlasSprite
 {
+
+  var extend:Bool = false;
+
+  var el = null;
+  var initialMat = null;
 
   public function new(x:Float, y:Float)
   {
@@ -22,6 +28,12 @@ class PicoBloodPool extends FlxAtlasSprite
     });
 
    // onAnimationFinish.add(finishCanAnimation);
+    onAnimationComplete.addOnce((_) -> {
+      el = anim.curSymbol.getElement(0);
+      initialMat = new FlxMatrix();
+      initialMat.copyFrom(el.matrix);
+      extend = true;
+    });
     this.visible = false;
   }
 
@@ -29,5 +41,26 @@ class PicoBloodPool extends FlxAtlasSprite
     playAnimation("poolAnim", true, false, false);
     //backingTextYeah.anim.play("");
     this.visible = true;
+  }
+
+  public function resetMatrix() {
+    el.matrix.copyFrom(initialMat);
+  }
+
+  override public function update(elapsed:Float)
+  {
+    super.update(elapsed);
+    if (extend)
+    {
+      var val = 0.02 * elapsed;
+
+      var mat = el.matrix;
+      mat.a += val;
+      mat.d += val;
+
+      mat.tx -= el.symbol.transformationPoint.x * val;
+      mat.ty -= el.symbol.transformationPoint.y * val;
+    }
+
   }
 }

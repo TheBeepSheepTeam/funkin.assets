@@ -38,6 +38,8 @@ class PhillyTrainErectStage extends Stage
 	var cutsceneSkipped:Bool = false;
 	var canSkipCutscene:Bool = false;
 
+	var gfHasHairBlowAnim:Bool;
+
 	/**
    * Replay the cutscene after leaving the song.
    */
@@ -51,6 +53,14 @@ class PhillyTrainErectStage extends Stage
 		playerShoots = false;
 		explode = true;
   }
+
+	override function onSongRetry(event:SongRetryEvent) {
+		super.onSongRetry(event);
+
+		if (bloodPool != null) {
+			bloodPool.scriptCall('resetMatrix');
+		}
+	}
 
 	public override function onCountdownStart(event:CountdownScriptEvent):Void {
 		super.onCountdownStart(event);
@@ -317,7 +327,6 @@ class PhillyTrainErectStage extends Stage
 			light.shader = lightShader;
 			light.visible = false;
 		}
-
 	}
 
 	function fetchAssetPaths():Array<String>
@@ -400,6 +409,7 @@ class PhillyTrainErectStage extends Stage
 		if (event.beat % 8 == 4 && FlxG.random.bool(30) && !trainMoving && trainCooldown > 8)
 		{
 			trainCooldown = FlxG.random.int(-4, 0);
+			if(gfHasHairBlowAnim == null) gfHasHairBlowAnim = getGirlfriend().hasAnimation('hairBlow');
 			trainStart();
 		}
 
@@ -431,7 +441,7 @@ class PhillyTrainErectStage extends Stage
 		if (trainSound.time >= 4700)
 		{
 			startedMoving = true;
-			getGirlfriend().playAnimation('hairBlow');
+			if(gfHasHairBlowAnim) getGirlfriend().playAnimation('hairBlow');
 		}
 
 		if (startedMoving)
@@ -455,7 +465,7 @@ class PhillyTrainErectStage extends Stage
 
 	function trainReset():Void
 	{
-		getGirlfriend().playAnimation('hairFall');
+		if(gfHasHairBlowAnim) getGirlfriend().playAnimation('hairFall');
 		getNamedProp('train').x = FlxG.width + 200;
 
 		trainMoving = false;
